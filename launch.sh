@@ -1,0 +1,1 @@
+sudo nvidia-docker run --name vox-rst -v /home/yeongsoo/datas/VoxCeleb1:/data -t vox:latest
