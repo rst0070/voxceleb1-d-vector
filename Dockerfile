@@ -10,5 +10,4 @@ RUN pip install wandb
 COPY ./ /app/
 WORKDIR /app
 
-#CMD ["wandb", "login", "7c6c025691da1f01124a2b61a50c7c2932f0fb85"]
 CMD ["python", "main.py"]
