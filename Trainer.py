@@ -1,9 +1,9 @@
-import Logger
 import torch
 from torch.utils.data import DataLoader
 import torch.nn as nn
 from NeuralNetModel import NeuralNetModel
 from dataset.TrainDataset import TrainDataset
+import wandb
 
 GPU = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 CPU = "cpu"
@@ -26,11 +26,15 @@ class Trainer:
         self.loss_fn = nn.CrossEntropyLoss().to(GPU)
         
         # Adam algorithm으로 optimizer 설정
+        """
         self.optimizer = torch.optim.Adam(
             self.model.parameters(),
             lr = 1e-3,
             weight_decay=1e-5
         )
+        """
+        
+        
         
         
         # learning rate가 epoch마다 0.95%씩 감소하도록 설정
@@ -39,6 +43,8 @@ class Trainer:
             step_size=1,
             gamma=0.95
         )
+        
+        self.weights_std_table = wandb.Table(columns = ["layer1", "layer2", "layer3", "layer4", "layer5", "layer6"])
     
     def getLearningRate(self):
         for parameters in self.optimizer.param_groups:
@@ -69,11 +75,10 @@ class Trainer:
             loss.backward()
             self.optimizer.step()
             
-            Logger.log({"weights Standard Deviation by batch" : self.model.getWeightsStd()})
+            # 가중치들의 표준편차 테이블 형식으로 log
+            self.weights_std_table.add_data({"weights Standard Deviation by batch" : self.model.getWeightsStd()})
         
-        
-        Logger.log({})
-        Logger.log({
+        wandb.log({
             "learning rate by epoch" : self.getLearningRate(),
             "training_loss by epoch" : loss
         })

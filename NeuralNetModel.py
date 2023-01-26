@@ -4,7 +4,7 @@ from dataset.Database import NUM_ENROLLED_SPEAKER
 
 class NeuralNetModel(nn.Module):
     
-    def __init__(self, embedding_layer:int = -1):
+    def __init__(self, embedding_layer:int = -3):
         super().__init__()
         self.input_size = 128 * 121
         self.output_size = NUM_ENROLLED_SPEAKER
@@ -33,6 +33,7 @@ class NeuralNetModel(nn.Module):
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.output_size)
         )
+        ## self.network_sequence[-3] : 마지막 은닉층의 batch norm
         
         self.classification = nn.Softmax(dim = 1)
         

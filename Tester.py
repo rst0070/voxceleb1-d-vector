@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from sklearn import metrics
 from scipy.optimize import brentq
 from scipy.interpolate import interp1d
-import Logger
+import wandb
 
 GPU = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 CPU = "cpu"
@@ -75,7 +75,7 @@ class Tester:
         
         eer = self.getEER(labels, sims)
         print(f"epoch: {epoch}, EER: {eer}")
-        Logger.log({"EER by epoch" : eer})
+        wandb.log({"EER by epoch" : eer})
             
         
         
