@@ -33,7 +33,7 @@ class Trainer:
             weight_decay=1e-5
         )
         """
-        
+        self.optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
         
         
         
@@ -76,7 +76,7 @@ class Trainer:
             self.optimizer.step()
             
             # 가중치들의 표준편차 테이블 형식으로 log
-            self.weights_std_table.add_data({"weights Standard Deviation by batch" : self.model.getWeightsStd()})
+            self.weights_std_table.add_data(self.model.getWeightsStd())
         
         wandb.log({
             "learning rate by epoch" : self.getLearningRate(),

@@ -9,6 +9,7 @@ class NeuralNetModel(nn.Module):
         self.input_size = 128 * 121
         self.output_size = NUM_ENROLLED_SPEAKER
         self.hidden_size = (self.input_size + self.output_size) // 2 # https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
+        self.embedding_layer = embedding_layer
         
         self.flatten = nn.Flatten() # 입력 tensor를 2차원으로 만드는 역할.
         
@@ -43,10 +44,35 @@ class NeuralNetModel(nn.Module):
                 nn.init.xavier_normal_(layer.weight, root_2) # 가중치 초기값 설정: root(2 / (입력, 출력 사이즈 평균))
                 layer.bias.data.fill_(0.01) # 편향 초기값 설정
         
-        self.network_sequence[embedding_layer].register_forward_hook( self.embeddingHook )
+        
         
     def embeddingHook(self, module, args, output):
         self.embedding = output.detach()
+    
+    def train(self):
+        """
+        `nn.Module`의 `train()`을 오버라이딩.
+        train시 임베딩 추출을 막기위해 핸들러를 제거한다.
+        """
+        
+        super().train()
+        try:
+            self.hook_handler.remove()
+        except:
+            # hook이 등록되지 않은경우
+            return
+    
+    
+    def eval(self):
+        """
+        `nn.Module`의 `eval()`을 오버라이딩.
+        test시 임베딩을 추출하기 위해 사용한다.  
+        """
+        
+        super().eval()
+        self.hook_handler = self.network_sequence[self.embedding_layer].register_forward_hook( self.embeddingHook )
+    
+    
     
     def forward(self, x):
         x = self.flatten(x)
