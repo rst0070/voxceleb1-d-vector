@@ -1,12 +1,15 @@
+import torch
 import torch.nn as nn
 from dataset.Database import NUM_ENROLLED_SPEAKER
 
 class NeuralNetModel(nn.Module):
     
-    def __init__(self, embedding_layer:int = -2):
+    def __init__(self, embedding_layer:int = -1):
         super().__init__()
         self.input_size = 128 * 121
-        self.hidden_size = 148643 // (2*(self.input_size + NUM_ENROLLED_SPEAKER)) # https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
+        self.output_size = NUM_ENROLLED_SPEAKER
+        self.hidden_size = (self.input_size + self.output_size) // 2 # https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
+        
         self.flatten = nn.Flatten() # 입력 tensor를 2차원으로 만드는 역할.
         
         # ReLU등의 활성화 함수는 매개변수학습을 하지 않는다. 
@@ -14,17 +17,30 @@ class NeuralNetModel(nn.Module):
         # Sequential은 이를 자동으로 처리해준다.        
         self.network_sequence = nn.Sequential(
             nn.Linear(self.input_size, self.hidden_size),
+            nn.BatchNorm1d(self.hidden_size),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.hidden_size),
+            nn.BatchNorm1d(self.hidden_size),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.hidden_size),
+            nn.BatchNorm1d(self.hidden_size),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.hidden_size),
+            nn.BatchNorm1d(self.hidden_size),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.hidden_size),
+            nn.BatchNorm1d(self.hidden_size),
             nn.ReLU(),
-            nn.Linear(self.hidden_size, NUM_ENROLLED_SPEAKER)
+            nn.Linear(self.hidden_size, self.output_size)
         )
+        
+        self.classification = nn.Softmax(dim = 1)
+        
+        root_2 = nn.init.calculate_gain('relu') # root(2)
+        for layer in self.network_sequence:
+            if isinstance(layer, nn.Linear):
+                nn.init.xavier_normal_(layer.weight, root_2) # 가중치 초기값 설정: root(2 / (입력, 출력 사이즈 평균))
+                layer.bias.data.fill_(0.01) # 편향 초기값 설정
         
         self.network_sequence[embedding_layer].register_forward_hook( self.embeddingHook )
         
@@ -32,15 +48,18 @@ class NeuralNetModel(nn.Module):
         self.embedding = output.detach()
     
     def forward(self, x):
-        #print(f"shape1 : {x.shape}")
         x = self.flatten(x)
-        #print(f"shape2 : {x.shape}")
         
-        #print(f"shape3 : {128*41}, {self.hidden_size}")
-        # logits는 softmax함수로 구해야하는게 아닌가 싶은데...
-        # 일단 예시 코드대로 돌려봄
         logits = self.network_sequence(x)
-        return logits
+        
+        return self.classification(logits)
     
     def getEmbedding(self):
         return self.embedding
+    
+    def getWeightsStd(self):
+        weights = []
+        for layer in self.network_sequence:
+            if isinstance(layer, nn.Linear):
+                weights.append(torch.std(layer.weight).item()) # 숫자로 변환
+        return weights

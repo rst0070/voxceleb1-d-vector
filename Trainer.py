@@ -21,6 +21,8 @@ class Trainer:
         self.dataloader = DataLoader(self.train_data, batch_size=batch_size, shuffle=True, num_workers=1)
         
         # loss function
+        # CEE에 넣기 전에 softmax를 통과시키지 않아도 된다.
+        # 혹시 모르니 일단 model.forward에 softmax를 구현해두었다.
         self.loss_fn = nn.CrossEntropyLoss().to(GPU)
         
         # Adam algorithm으로 optimizer 설정
@@ -37,6 +39,11 @@ class Trainer:
             step_size=1,
             gamma=0.95
         )
+    
+    def getLearningRate(self):
+        for parameters in self.optimizer.param_groups:
+            if 'lr' in parameters:
+                return parameters['lr']
         
         
     def train(self, epoch):
@@ -61,8 +68,15 @@ class Trainer:
             
             loss.backward()
             self.optimizer.step()
+            
+            Logger.log({"weights Standard Deviation by batch" : self.model.getWeightsStd()})
         
-        Logger.log({"training_loss" : loss})
+        
+        Logger.log({})
+        Logger.log({
+            "learning rate by epoch" : self.getLearningRate(),
+            "training_loss by epoch" : loss
+        })
         # learning rate 낮추기
         self.lr_scheduler.step()
         

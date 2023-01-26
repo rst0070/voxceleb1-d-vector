@@ -75,7 +75,7 @@ class Tester:
         
         eer = self.getEER(labels, sims)
         print(f"epoch: {epoch}, EER: {eer}")
-        Logger.log({"EER" : eer})
+        Logger.log({"EER by epoch" : eer})
             
         
         

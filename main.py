@@ -53,13 +53,10 @@ class Main:
     def save(self):
         torch.save(self.model, "/result/model.pth")
 
-def spawn():
+if __name__ == '__main__':
+    torch.multiprocessing.set_start_method("spawn")
     program = Main(max_epoch=50, batch_size=50)
     program.start()
     program.save()
-
-if __name__ == '__main__':
-    torch.multiprocessing.set_start_method("spawn")
-    spawn()
 
 
