@@ -25,17 +25,12 @@ class Trainer:
         # 혹시 모르니 일단 model.forward에 softmax를 구현해두었다.
         self.loss_fn = nn.CrossEntropyLoss().to(GPU)
         
-        # Adam algorithm으로 optimizer 설정
-        """
+        
         self.optimizer = torch.optim.Adam(
             self.model.parameters(),
-            lr = 1e-3,
+            lr = 0.01,
             weight_decay=1e-5
         )
-        """
-        self.optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-        
-        
         
         # learning rate가 epoch마다 0.95%씩 감소하도록 설정
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(

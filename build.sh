@@ -1,1 +1,1 @@
-sudo docker build -t vox .
+sudo docker build -t vox_adam .

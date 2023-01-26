@@ -29,7 +29,7 @@ class Main:
         os.system(f"wandb login {WANDB_KEY}")
         wandb.init(
             project = "Voxceleb1 D-Vector",
-            name = "momentum"
+            name = "Adam"
         )
         
         self.max_epoch = max_epoch
@@ -55,7 +55,7 @@ class Main:
 
 if __name__ == '__main__':
     torch.multiprocessing.set_start_method("spawn")
-    program = Main(max_epoch=100, batch_size=50)
+    program = Main(max_epoch=200, batch_size=50)
     program.start()
     program.save()
 
