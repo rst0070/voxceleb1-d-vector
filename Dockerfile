@@ -10,4 +10,5 @@ RUN pip install wandb
 COPY ./ /app/
 WORKDIR /app
 
+CMD ["touch", "/result.pth"]
 CMD ["python", "main.py"]

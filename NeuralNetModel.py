@@ -4,7 +4,7 @@ from dataset.Database import NUM_ENROLLED_SPEAKER
 
 class NeuralNetModel(nn.Module):
     
-    def __init__(self, embedding_layer:int = -3):
+    def __init__(self, embedding_layer:int = -2):
         super().__init__()
         self.input_size = 128 * 121
         self.output_size = NUM_ENROLLED_SPEAKER
@@ -30,13 +30,12 @@ class NeuralNetModel(nn.Module):
             nn.BatchNorm1d(self.hidden_size),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.hidden_size),
-            nn.BatchNorm1d(self.hidden_size),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.output_size)
         )
-        ## self.network_sequence[-3] : 마지막 은닉층의 batch norm
+        ## self.network_sequence[-2] : 마지막 은닉층의 활성화값
         
-        self.classification = nn.Softmax(dim = 1)
+        #self.classification = nn.Softmax(dim = 1)
         
         root_2 = nn.init.calculate_gain('relu') # root(2)
         for layer in self.network_sequence:
@@ -44,44 +43,19 @@ class NeuralNetModel(nn.Module):
                 nn.init.xavier_normal_(layer.weight, root_2) # 가중치 초기값 설정: root(2 / (입력, 출력 사이즈 평균))
                 layer.bias.data.fill_(0.01) # 편향 초기값 설정
         
+        self.network_sequence[self.embedding_layer].register_forward_hook( self.embeddingHook )
         
         
     def embeddingHook(self, module, args, output):
-        self.embedding = output.detach()
-    
-    def train(self):
-        """
-        `nn.Module`의 `train()`을 오버라이딩.
-        train시 임베딩 추출을 막기위해 핸들러를 제거한다.
-        """
+        self.embedding = torch.clone(output.detach())
+        #print(self.embedding)
         
-        super().train()
-        try:
-            self.hook_handler.remove()
-        except:
-            # hook이 등록되지 않은경우
-            return
-    
-    
-    def eval(self):
-        """
-        `nn.Module`의 `eval()`을 오버라이딩.
-        test시 임베딩을 추출하기 위해 사용한다.  
-        """
-        
-        super().eval()
-        self.hook_handler = self.network_sequence[self.embedding_layer].register_forward_hook( self.embeddingHook )
-    
-    
-    
     def forward(self, x):
         x = self.flatten(x)
-        
-        logits = self.network_sequence(x)
-        
-        return self.classification(logits)
+        return self.network_sequence(x)
     
     def getEmbedding(self):
+        #print(self.embedding)
         return self.embedding
     
     def getWeightsStd(self):

@@ -75,12 +75,15 @@ class Trainer:
             loss.backward()
             self.optimizer.step()
             
-            # 가중치들의 표준편차 테이블 형식으로 log
-            self.weights_std_table.add_data(self.model.getWeightsStd())
+            
+        # 가중치들의 표준편차 테이블 형식으로 log
+        l1, l2, l3, l4, l5, l6 = self.model.getWeightsStd()
+        self.weights_std_table.add_data(l1, l2, l3, l4, l5, l6)
         
         wandb.log({
             "learning rate by epoch" : self.getLearningRate(),
-            "training_loss by epoch" : loss
+            "training_loss by epoch" : loss,
+            "weights std table by epoch": self.weights_std_table
         })
         # learning rate 낮추기
         self.lr_scheduler.step()

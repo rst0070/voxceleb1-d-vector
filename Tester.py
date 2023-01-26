@@ -38,35 +38,16 @@ class Tester:
         
         sims = []
         labels = []
-        embeddings = {}
-
         for batch_idx, ((signal1, id1, signal2, id2), label) in enumerate(self.dataloader):
             
-            signal1 , signal2 = signal1.to(GPU), signal2.to(GPU)
-        
-            emb1 = None
-            emb2 = None
+            self.model(signal1.to(GPU))
+            emb1 = self.model.getEmbedding()
+            self.model(signal2.to(GPU))
+            emb2 = self.model.getEmbedding()
             
-            if id1 in embeddings:
-                emb1 = embeddings[id1].to(GPU)
-            else:
-                self.model(signal1)
-                emb1 = self.model.getEmbedding()
-                embeddings[id1] = emb1.to(CPU)
-
-            if id2 in embeddings:
-                emb2 = embeddings[id2].to(GPU)
-            else:
-                self.model(signal2)
-                emb2 = self.model.getEmbedding()
-                embeddings[id2] = emb2.to(CPU)        
-        
-
-            similarity = F.cosine_similarity(emb1, emb2, dim=1)
+            sim = F.cosine_similarity(emb1, emb2, dim=1)
             
-            #print(similarity.shape, label.shape)
-            
-            sims.append(similarity)
+            sims.append(sim)
             labels.append(label)
             
         

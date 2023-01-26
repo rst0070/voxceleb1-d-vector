@@ -24,8 +24,8 @@ class TestDataset(Dataset):
         
         signal1 = db.transformWaveform(path1)
         signal2 = db.transformWaveform(path2)
-        id1 = self.audio_labels.iloc[idx, 1][0 : 7]
-        id2 = self.audio_labels.iloc[idx, 1][0 : 7]
+        id1 = self.audio_labels.iloc[idx, 1]
+        id2 = self.audio_labels.iloc[idx, 1]
         return (signal1, id1, signal2, id2), label
     
         
