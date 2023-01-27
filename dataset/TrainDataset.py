@@ -35,7 +35,7 @@ class TrainDataset(Dataset):
         
         audio_path = os.path.join(self.audio_dir, self.audio_labels.iloc[idx, 2])
         
-        tensor = db.transformWaveform(audio_path)            
+        tensor = db.extractFeatureForTrain(audio_path)            
         #print(tensor.shape)
         label = int( self.audio_labels.iloc[idx, 0] )
 
