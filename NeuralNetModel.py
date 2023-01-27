@@ -6,7 +6,7 @@ class NeuralNetModel(nn.Module):
     
     def __init__(self, embedding_layer:int = -2):
         super().__init__()
-        self.input_size = 128 * 121
+        self.input_size = 40*63
         self.output_size = NUM_ENROLLED_SPEAKER
         self.hidden_size = (self.input_size + self.output_size) // 2 # https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
         self.embedding_layer = embedding_layer

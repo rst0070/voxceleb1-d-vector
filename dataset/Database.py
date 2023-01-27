@@ -17,19 +17,15 @@ CPU = "cpu"
 NUM_ENROLLED_SPEAKER = 1211
 NUM_FRAMES = 16000 * 2
 #  이부분 수정할 수 도?
-ORIGIN_SAMPLE_RATE = 16000 
-SAMPLE_RATE = 48000
+SAMPLE_RATE = 16000
 
-# 설정 한번 다 바꿔야할 듯.
 MEL_CONFIG = {
-    'n_fft' : NUM_FRAMES,
-    'win_length' : NUM_FRAMES // 20,
-    'hop_length' : (NUM_FRAMES // 20) // 2,
-    'n_mels' : 128
+    'n_fft' : 1024,
+    'win_length' : 1024,
+    'hop_length' : 512,
+    'n_mels' : 40
 }
 
-
-RESAMPLER = T.Resample(ORIGIN_SAMPLE_RATE, SAMPLE_RATE, dtype = torch.float).to(GPU)
 
 # Mel spectogram을 기본 transformer로 사용한다.
 # 각 파라미터에 대해서 좀더 찾아봐야함
@@ -99,18 +95,6 @@ def resizeWaveform(waveform:torch.Tensor):
         return torch.cat(tensor_list, 1)
      # 길이 긴 경우
     return waveform[:, 0:NUM_FRAMES]
-    
-
-def resampleWaveform(waveform:torch.Tensor, origin_sample_rate):
-    """_summary_
-    waveform을 지정된 sampling rate로 resample한다.
-    """
-    if origin_sample_rate == SAMPLE_RATE:
-        return waveform
-    
-    #print(f"origin sample rate {origin_sample_rate}")
-    
-    return RESAMPLER(waveform)
 
 def transformWaveform(audio_path:str) -> torch.Tensor:
     """_summary_
@@ -124,15 +108,14 @@ def transformWaveform(audio_path:str) -> torch.Tensor:
         return AUDIO_CACHE[audio_path]
     
     waveform, sample_rate = torchaudio.load(audio_path)
+    
     # 연산할때는 VRAM에
     waveform = waveform.to(GPU) 
-    waveform = resizeWaveform(waveform)  
-    #print(waveform.dtype)
-    waveform = resampleWaveform(waveform, sample_rate)      
+    waveform = resizeWaveform(waveform) 
     tensor = WAVEFORM_TRANSFORMER(waveform)
     
     # 중간에 쓸데없이 크기가 1인 차원이 존재해서 없애주는것.(squeeze)    
     # 저장할때는 RAM에 
     AUDIO_CACHE[audio_path] = tensor.squeeze().to(CPU)
-    
+    # print(AUDIO_CACHE[audio_path].shape, sample_rate)
     return AUDIO_CACHE[audio_path]

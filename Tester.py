@@ -46,7 +46,7 @@ class Tester:
             emb2 = self.model.getEmbedding()
             
             sim = F.cosine_similarity(emb1, emb2, dim=1)
-            
+            print("EMBEDDING SIM", sim, label)
             sims.append(sim)
             labels.append(label)
             
