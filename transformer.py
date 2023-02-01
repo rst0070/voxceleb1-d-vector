@@ -15,7 +15,7 @@ CPU = "cpu"
 SAMPLE_RATE = 16000
 NUM_FRAME_PER_INPUT = 16000 * 4
 NUM_FILTER_PER_WINDOW = 64
-NUM_WINDOW_PER_INPUT = NUM_FRAME_PER_INPUT // 160
+NUM_WINDOW_PER_INPUT = 401 #NUM_FRAME_PER_INPUT // 160
 NUM_SEG_PER_UTTER = 38
 """ 각각의 발성들을 NUM_SEG_PER_UTTER개로 나눈다. """
 
@@ -56,6 +56,11 @@ def resizeWaveform(waveform:torch.Tensor):
 
 
 def transform(waveform):
+    tensor = WAVEFORM_TRANSFORMER(waveform)
+    tensor = torch.squeeze(tensor, dim = 0)
+    return tensor
+
+def transformWithSplit(waveform):
     waveform = resizeWaveform(waveform)
     _, n_frames_wf = waveform.shape
     
@@ -67,4 +72,4 @@ def transform(waveform):
         tensor = WAVEFORM_TRANSFORMER(waveform[:, start : end])
         tensor_list.append(torch.squeeze(tensor, dim=0))
     
-    return torch.tensor(tensor_list)
+    return torch.stack(tensor_list, dim = 0)

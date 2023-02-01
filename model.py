@@ -8,7 +8,7 @@ class NeuralNet(nn.Module):
     
     def __init__(self, input_size, output_size):
         super().__init__()
-        self.input_size = input_size
+        self.input_size = input_size # 25664
         self.output_size = output_size
         
         self.flatten = nn.Flatten()
@@ -16,34 +16,34 @@ class NeuralNet(nn.Module):
         self.drop_out = nn.Dropout(0.25)
         
         self.layer1 = nn.Sequential(
-            nn.Linear(self.input_size, 2560),
-            nn.BatchNorm1d(2560),
-            nn.MaxPool1d(2), # 1280
+            nn.Linear(self.input_size, 6416), 
+            nn.BatchNorm1d(6416),
             self.leaky_relu
+            #nn.MaxPool1d(2, stride = 1), # 6415
         )
         
         self.layer2 = nn.Sequential(
-            nn.Linear(1280, 256),
-            nn.BatchNorm1d(256),
-            nn.MaxPool1d(2), # 128
+            nn.Linear(6415, 1604),
+            nn.BatchNorm1d(1604),
+            #nn.MaxPool1d(2), # 128
             self.leaky_relu
         )
         
         self.layer3 = nn.Sequential(
-            nn.Linear(128, 128),
-            nn.BatchNorm1d(128),
+            nn.Linear(1604, 401),
+            nn.BatchNorm1d(401),
             self.leaky_relu,
             self.drop_out
         )
         
         self.layer4 = nn.Sequential(
-            nn.Linear(128, 128),
-            nn.BatchNorm1d(128),
+            nn.Linear(401, 401),
+            nn.BatchNorm1d(401),
             self.leaky_relu,
             self.drop_out
         )
         
-        self.out_layer = nn.Linear(128, output_size)
+        self.out_layer = nn.Linear(401, output_size)
         
     def forward(self, x):
         x = x.to(GPU)
@@ -53,8 +53,11 @@ class NeuralNet(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
         
-        self.embedding = x
+        self.embedding = x.detach()
         
         x = self.out_layer(x)
         
         return x
+    
+    def getEmbedding(self):
+        return self.embedding
