@@ -23,7 +23,7 @@ class NeuralNet(nn.Module):
         )
         
         self.layer2 = nn.Sequential(
-            nn.Linear(6415, 1604),
+            nn.Linear(6416, 1604),
             nn.BatchNorm1d(1604),
             #nn.MaxPool1d(2), # 128
             self.leaky_relu
