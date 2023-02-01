@@ -55,8 +55,10 @@ class Trainer:
             loss = self.loss_fn(output, ans.to(GPU))
             loss.backward()
             self.optimizer.step()
+            
+            wandb.log({"loss by batch" : loss})
             #break
         
-        print(f"epoch: {epoch}, loss: {loss}")    
-        wandb.log({"loss by epoch" : loss})
+        #print(f"epoch: {epoch}, loss: {loss}")    
+        
         self.lr_scheduler.step()

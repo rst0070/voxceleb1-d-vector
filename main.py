@@ -55,6 +55,6 @@ class Main:
 
 if __name__ == '__main__':
     torch.multiprocessing.set_start_method("spawn")
-    program = Main(max_epoch=100, batch_size=500)
+    program = Main(max_epoch=100, batch_size=700)
     program.start()
     program.save()

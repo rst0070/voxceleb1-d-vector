@@ -13,37 +13,30 @@ class NeuralNet(nn.Module):
         
         self.flatten = nn.Flatten()
         self.leaky_relu = nn.LeakyReLU() # https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
-        self.drop_out = nn.Dropout(0.25)
         
         self.layer1 = nn.Sequential(
-            nn.Linear(self.input_size, 6416), 
-            nn.BatchNorm1d(6416),
-            self.leaky_relu
-            #nn.MaxPool1d(2, stride = 1), # 6415
+            nn.Linear(self.input_size, 512), 
+            nn.BatchNorm1d(512),
+            self.leaky_relu,
+            nn.Dropout(0.25)
         )
         
         self.layer2 = nn.Sequential(
-            nn.Linear(6416, 1604),
-            nn.BatchNorm1d(1604),
-            #nn.MaxPool1d(2), # 128
-            self.leaky_relu
+            nn.Linear(512, 256),
+            nn.BatchNorm1d(256),
+            self.leaky_relu,
+            nn.Dropout(0.25)
         )
         
         self.layer3 = nn.Sequential(
-            nn.Linear(1604, 401),
-            nn.BatchNorm1d(401),
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
             self.leaky_relu,
-            self.drop_out
+            nn.Dropout(0.25)
         )
         
-        self.layer4 = nn.Sequential(
-            nn.Linear(401, 401),
-            nn.BatchNorm1d(401),
-            self.leaky_relu,
-            self.drop_out
-        )
         
-        self.out_layer = nn.Linear(401, output_size)
+        self.out_layer = nn.Linear(128, output_size)
         
     def forward(self, x):
         x = x.to(GPU)
@@ -51,7 +44,6 @@ class NeuralNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        x = self.layer4(x)
         
         self.embedding = x.detach()
         
