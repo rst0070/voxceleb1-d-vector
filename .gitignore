@@ -1,3 +1,4 @@
 .vscode**
 find_train_files.py
 **__pycache__
+**.ipynb
