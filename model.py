@@ -13,6 +13,7 @@ class NeuralNet(nn.Module):
         
         self.flatten = nn.Flatten()
         self.leaky_relu = nn.LeakyReLU() # https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+        self.max_pool_
         
         self.layer1 = nn.Sequential(
             nn.Linear(self.input_size, 1024), 
@@ -43,13 +44,14 @@ class NeuralNet(nn.Module):
     def forward(self, x):
         x = x.to(GPU)
         x = self.flatten(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
         
-        self.embedding = x.detach()
+        y1 = self.layer1(x)
+        y2 = self.layer2(y1)
+        y3 = self.layer3(y2)
         
-        x = self.out_layer(x)
+        self.embedding = y3.detach()
+        
+        y4 = self.out_layer(y3)
         
         return x
     
