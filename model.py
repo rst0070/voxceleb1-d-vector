@@ -15,9 +15,10 @@ class NeuralNet(nn.Module):
         self.leaky_relu = nn.LeakyReLU() # https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
         
         self.layer1 = nn.Sequential(
-            nn.Linear(self.input_size, 512), 
-            nn.BatchNorm1d(512),
+            nn.Linear(self.input_size, 1024), 
+            nn.BatchNorm1d(1024),
             self.leaky_relu,
+            nn.MaxPool1d(2),
             nn.Dropout(0.25)
         )
         
@@ -25,11 +26,12 @@ class NeuralNet(nn.Module):
             nn.Linear(512, 256),
             nn.BatchNorm1d(256),
             self.leaky_relu,
+            nn.MaxPool1d(2),
             nn.Dropout(0.25)
         )
         
         self.layer3 = nn.Sequential(
-            nn.Linear(256, 128),
+            nn.Linear(128, 128),
             nn.BatchNorm1d(128),
             self.leaky_relu,
             nn.Dropout(0.25)
