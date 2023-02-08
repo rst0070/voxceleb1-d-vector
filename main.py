@@ -28,7 +28,7 @@ class Main:
         TEST_DIR = "/data/test"
         TRAIN_LABEL = "train_label.csv"
         TEST_LABEL = "trial_label.csv"
-        WANDB_KEY = "7c6c025691da1f01124a2b61a50c7c2932f0fb85"
+        WANDB_KEY = "WANDB_KEY"
         os.system(f"wandb login {WANDB_KEY}")
         wandb.init(
             project = "Voxceleb1 D-Vector",

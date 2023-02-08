@@ -56,11 +56,17 @@ def resizeWaveform(waveform:torch.Tensor):
 
 
 def transform(waveform):
+    """
+    주어진 waveform 전체 변환
+    """
     tensor = WAVEFORM_TRANSFORMER(waveform)
     tensor = torch.squeeze(tensor, dim = 0)
     return tensor
 
 def transformWithSplit(waveform):
+    """
+    waveform을 균등하게 자르고 변환
+    """
     waveform = resizeWaveform(waveform)
     _, n_frames_wf = waveform.shape
     
@@ -70,6 +76,7 @@ def transformWithSplit(waveform):
     for start in start_frs:
         end = start + NUM_FRAME_PER_INPUT
         tensor = WAVEFORM_TRANSFORMER(waveform[:, start : end])
+        tensor = torch.log(tensor + 1e-5)
         tensor_list.append(torch.squeeze(tensor, dim=0))
     
     return torch.stack(tensor_list, dim = 0)
